@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, MetaData
 from models import Base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "postgresql+psycopg2://postgres:1111@localhost/rest"
+DATABASE_URL = "postgresql+psycopg2://postgres:pass@localhost/mydb"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
