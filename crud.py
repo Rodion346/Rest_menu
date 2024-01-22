@@ -40,8 +40,8 @@ def update_menu(db: Session, menu_id: str, menu_update: dict):
     return db_menu
 
 
-def delete_menu(db: Session):
-    menu = (db.query(models.Menu).options(joinedload(models.Menu.submenus)).first())
+def delete_menu(db: Session, menu_id: UUID):
+    menu = db.query(models.Menu).filter(models.Menu.id == menu_id).options(joinedload(models.Menu.submenus)).first()
     if menu:
         for submenu in menu.submenus:
             delete_submenu(db, submenu.id)
