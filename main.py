@@ -23,7 +23,7 @@ def create_dbase():
     creat_Tablesdb()
 
 
-@router.post("/menus", response_model=MenuOut, status_code=201)
+@router.post("/api/v1/menus", response_model=MenuOut, status_code=201)
 def create_menu(menu: MenuCreate, db: Session = Depends(get_db)):
     menu_out = crud.create_menu(db, menu)
     menu_out.submenus_count = 0
@@ -31,7 +31,7 @@ def create_menu(menu: MenuCreate, db: Session = Depends(get_db)):
     return menu_out
 
 
-@router.get("/menus", response_model=List[MenuOut])
+@router.get("/api/v1/menus", response_model=List[MenuOut])
 def read_menus(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     menus = crud.get_menus(db, skip=skip, limit=limit)
     for menu in menus:
@@ -40,7 +40,7 @@ def read_menus(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return menus or []
 
 
-@router.get("/menus/{menu_id}", response_model=MenuOut, status_code=200)
+@router.get("/api/v1/menus/{menu_id}", response_model=MenuOut, status_code=200)
 def read_menu(menu_id: UUID, db: Session = Depends(get_db)):
     menu = crud.get_menu(db, menu_id)
     if menu is None:
@@ -57,7 +57,7 @@ def read_menu(menu_id: UUID, db: Session = Depends(get_db)):
     return menu_out
 
 
-@router.patch("/menus/{menu_id}", response_model=MenuOut)
+@router.patch("/api/v1/menus/{menu_id}", response_model=MenuOut)
 def update_menu(menu_id: UUID, menu_update: MenuCreate, db: Session = Depends(get_db)):
     updated_menu = crud.update_menu(db, menu_id, menu_update.dict())
     if updated_menu is None:
@@ -74,7 +74,7 @@ def update_menu(menu_id: UUID, menu_update: MenuCreate, db: Session = Depends(ge
     return menu_out
 
 
-@router.delete("/menus/{menu_id}", response_model=dict)
+@router.delete("/api/v1/menus/{menu_id}", response_model=dict)
 def delete_menu(menu_id: UUID, db: Session = Depends(get_db)):
     return crud.delete_menu(db, menu_id)
 
@@ -82,7 +82,7 @@ def delete_menu(menu_id: UUID, db: Session = Depends(get_db)):
 # --- Подменю ---
 
 
-@router.post("/menus/{menu_id}/submenus/", response_model=SubmenuOut, status_code=201)
+@router.post("/api/v1/menus/{menu_id}/submenus/", response_model=SubmenuOut, status_code=201)
 def create_submenu(menu_id: UUID, submenu_create: SubmenuCreate, db: Session = Depends(get_db)):
     created_submenu = crud.create_submenu(db, menu_id, submenu_create.dict())
     dishes_count = crud.count_dishes_sub(db, created_submenu.id)
@@ -95,7 +95,7 @@ def create_submenu(menu_id: UUID, submenu_create: SubmenuCreate, db: Session = D
     return submenu_out
 
 
-@router.get("/menus/{menu_id}/submenus/", response_model=List[SubmenuOut])
+@router.get("/api/v1/menus/{menu_id}/submenus/", response_model=List[SubmenuOut])
 def read_submenus(menu_id: UUID, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     submenus = crud.get_submenus(db, menu_id, skip=skip, limit=limit)
     submenus_with_counts = []
@@ -111,7 +111,7 @@ def read_submenus(menu_id: UUID, skip: int = 0, limit: int = 10, db: Session = D
     return submenus_with_counts
 
 
-@router.get("/menus/{menu_id}/submenus/{submenu_id}", response_model=SubmenuOut)
+@router.get("/api/v1/menus/{menu_id}/submenus/{submenu_id}", response_model=SubmenuOut)
 def read_submenu(submenu_id: UUID, db: Session = Depends(get_db)):
     submenu = crud.get_submenu(db, submenu_id)
     if not submenu:
@@ -126,7 +126,7 @@ def read_submenu(submenu_id: UUID, db: Session = Depends(get_db)):
     return submenu_out
 
 
-@router.patch("/menus/{menu_id}/submenus/{submenu_id}", response_model=SubmenuOut)
+@router.patch("/api/v1/menus/{menu_id}/submenus/{submenu_id}", response_model=SubmenuOut)
 def update_submenu(submenu_id: UUID, submenu: SubmenuCreate, db: Session = Depends(get_db)):
     updated_submenu = crud.update_submenu(db, submenu_id, submenu)
     dishes_count = crud.count_dishes_sub(db, updated_submenu.id)
@@ -139,7 +139,7 @@ def update_submenu(submenu_id: UUID, submenu: SubmenuCreate, db: Session = Depen
     return submenu_out
 
 
-@router.delete("/menus/{menu_id}/submenus/{submenu_id}", response_model=dict)
+@router.delete("/api/v1/menus/{menu_id}/submenus/{submenu_id}", response_model=dict)
 def delete_submenu(submenu_id: UUID, db: Session = Depends(get_db)):
     return crud.delete_submenu(db, submenu_id)
 
@@ -147,17 +147,17 @@ def delete_submenu(submenu_id: UUID, db: Session = Depends(get_db)):
 # --- Блюда ---
 
 
-@router.post("/menus/{menu_id}/submenus/{submenu_id}/dishes/", response_model=DishOut, status_code=201)
+@router.post("/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/", response_model=DishOut, status_code=201)
 def create_dish(submenu_id: UUID, dish: DishCreate, db: Session = Depends(get_db)):
     return crud.create_dish(db, dish, submenu_id)
 
 
-@router.get("/menus/{menu_id}/submenus/{submenu_id}/dishes/", response_model=List[DishOut], status_code=200)
+@router.get("/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/", response_model=List[DishOut], status_code=200)
 def read_dishes(submenu_id: UUID, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return crud.get_dishes(db, submenu_id, skip=skip, limit=limit) or []
 
 
-@router.get("/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}", response_model=DishOut)
+@router.get("/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}", response_model=DishOut)
 def read_dish(dish_id: UUID, db: Session = Depends(get_db)):
     dishes = crud.get_dish(db, dish_id)
     if not dishes:
@@ -165,11 +165,11 @@ def read_dish(dish_id: UUID, db: Session = Depends(get_db)):
     return crud.get_dish(db, dish_id)
 
 
-@router.patch("/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}", response_model=DishOut)
+@router.patch("/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}", response_model=DishOut)
 def update_dish(dish_id: UUID, dish: DishCreate, db: Session = Depends(get_db)):
     return crud.update_dish(db, dish_id, dish)
 
 
-@router.delete("/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}", response_model=dict)
+@router.delete("/api/v1/menus/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}", response_model=dict)
 def delete_dish(dish_id: UUID, db: Session = Depends(get_db)):
     return crud.delete_dish(db, dish_id)
