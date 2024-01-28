@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
-from database import get_db
-from models import Menu, Submenu, Dishes
-import shemas
+from src.database import get_db
+from src.models import Menu, Submenu, Dishes
+import src.shemas as shemas
 router = APIRouter(tags=["Dish"])
 
 

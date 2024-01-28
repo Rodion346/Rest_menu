@@ -2,9 +2,8 @@ import uuid
 from sqlalchemy import String, Column, MetaData, ForeignKey, DECIMAL, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from database import Base
+from src.database import Base, metadata
 
-metadata = MetaData()
 
 
 class Menu(Base):
@@ -37,7 +36,7 @@ class Dishes(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(50), nullable=False)
-    price = Column(DECIMAL, nullable=False)
+    price = Column(DECIMAL(scale=2), nullable=False)
     description = Column(String(125))
     submenu_id = Column(UUID(as_uuid=True), ForeignKey("submenus.id"))
 
