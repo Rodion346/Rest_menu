@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy import select, func, case, outerjoin, distinct
 from uuid import UUID
-from database import get_db
-from models import Menu, Submenu, Dishes
-import shemas
+from src.database import get_db
+from src.models import Menu, Submenu, Dishes
+import src.shemas as shemas
 
 
 router = APIRouter(tags=["Menu"])
@@ -23,10 +24,22 @@ def read_menu(menu_id: UUID, session: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="menu not found",
         )
-    s_count = session.query(Submenu).filter(Submenu.menu_id == menu_id).count()
-    d_count = session.query(Dishes).join(Submenu).filter(Submenu.menu_id == menu_id).count()
-    query.submenus_count = s_count
-    query.dishes_count = d_count
+    querys = (
+        select(
+            func.count(distinct(Submenu.id)).label('submenus_count'),
+            func.count(distinct(Dishes.id)).label('dishes_count'),
+        )
+        .select_from(Menu)
+        .outerjoin(Submenu, Menu.id == Submenu.menu_id)
+        .outerjoin(Dishes, Submenu.id == Dishes.submenu_id)
+        .group_by(Menu.id)
+    )
+
+    result = session.execute(querys).fetchall()
+    if result:
+        s_count, d_count = result[0][0], result[0][1]
+        query.submenus_count = s_count
+        query.dishes_count = d_count
     return query
 
 @router.post("/api/v1/menus", response_model=shemas.MenuIn, status_code=201)

@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
-from database import get_db
-from models import Menu, Submenu, Dishes
-import shemas
+from src.database import get_db
+from src.models import Menu, Submenu, Dishes
+import src.shemas as shemas
 router = APIRouter(tags=["Submenu"])
 
 @router.get("/api/v1/menus/{menu_id}/submenus")
-def read_submenus(session: Session = Depends(get_db)):
-    query = session.query(Submenu.menu_id).all()
-    return query
+def read_submenus(menu_id: UUID, session: Session = Depends(get_db)):
+    submenus = session.query(Submenu).filter(Submenu.menu_id == menu_id).all()
+    return submenus
 
 @router.get("/api/v1/menus/{menu_id}/submenus/{submenu_id}", response_model=shemas.SubmenuOut)
 def read_submenu(menu_id: UUID, submenu_id: UUID, session: Session = Depends(get_db)):
