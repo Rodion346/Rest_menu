@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import String, Column, MetaData, ForeignKey, DECIMAL, text
+from sqlalchemy import String, Column, ForeignKey, DECIMAL
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from src.database import Base, metadata

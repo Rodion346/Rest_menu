@@ -2,7 +2,7 @@ from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.database import metadata, get_db, Base
+from src.database import metadata, get_db
 from src.config import DB_HOST_TEST, DB_PASS_TEST, DB_NAME_TEST, DB_PORT_TEST, DB_USER_TEST
 from main import app
 import pytest
@@ -72,16 +72,10 @@ def fixture_submenu():
 @pytest.fixture(autouse=True)
 def fixture_dish():
     dishes = [
-        {'title': 'My dish', 'description': 'My description', 'price': 1111.01},
-        {'title': 'My dish 2', 'description': 'My description 2', 'price': 1111.01},
-        {'title': 'Updated dish','description': 'Updated description','price': 2222.01,},
+        {'title': 'My dish', 'description': 'My description', 'price': '1111.01'},
+        {'title': 'My dish 2', 'description': 'My description 2', 'price': '1111.01'},
+        {'title': 'Updated dish','description': 'Updated description','price': '2222.01'},
     ]
     return dishes
 
 
-@pytest.fixture(scope='session', autouse=True)
-def cleanup_db(request):
-    yield
-    with override_get_db() as db:
-        metadata.drop_all(engine_test)
-        db.commit()

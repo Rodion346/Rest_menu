@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 from src.database import get_db
-from src.models import Menu, Submenu, Dishes
+from src.models import Dishes
 import src.shemas as shemas
+
+
 router = APIRouter(tags=["Dish"])
 
 
@@ -49,4 +51,4 @@ def delete_dish(dish_id: UUID, session: Session = Depends(get_db)):
     if query:
         session.delete(query)
         session.commit()
-        return {"message": "Dish deleted"}
+        return {"message": "dish deleted"}
