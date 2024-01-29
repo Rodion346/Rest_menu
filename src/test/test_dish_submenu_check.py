@@ -1,7 +1,8 @@
 from http import HTTPStatus
 
 import pytest
-
+from sqlalchemy.orm import Session
+from src.models import Menu, Submenu, Dishes
 
 class TestDishSubmenu:
     menu_id = None
@@ -20,7 +21,7 @@ class TestDishSubmenu:
         assert response.status_code == 201
         pytest.submenu_id = str(response.json()['id'])
 
-    def test_create_dish_one(self, client, fixture_dish):
+    def test_create_dish_one(self, client, fixture_dish, db: Session):
         response = client.post(
             f'/api/v1/menus/{pytest.menu_id}/submenus/{pytest.submenu_id}/dishes',
             json=fixture_dish[0],
@@ -28,7 +29,12 @@ class TestDishSubmenu:
         assert response.status_code == 201
         pytest.dish_id = str(response.json()['id'])
 
-    def test_create_dish_two(self, client, fixture_dish):
+        dish = db.query(Dishes).filter(Dishes.id == pytest.dish_id).first()
+        assert dish is not None
+        assert dish.title == fixture_dish[0]['title']
+        assert dish.description == fixture_dish[0]['description']
+
+    def test_create_dish_two(self, client, fixture_dish, db: Session):
         response = client.post(
             f'/api/v1/menus/{pytest.menu_id}/submenus/{pytest.submenu_id}/dishes',
             json=fixture_dish[1],
@@ -36,45 +42,74 @@ class TestDishSubmenu:
         assert response.status_code == 201
         pytest.dish_id = str(response.json()['id'])
 
-    def test_read_menu_one(self, client, fixture_menu):
+        dish = db.query(Dishes).filter(Dishes.id == pytest.dish_id).first()
+        assert dish is not None
+        assert dish.title == fixture_dish[1]['title']
+        assert dish.description == fixture_dish[1]['description']
+
+    def test_read_menu_one(self, client, fixture_menu, db: Session):
         response = client.get(f'/api/v1/menus/{pytest.menu_id}')
         assert response.json()['title'] == fixture_menu[0]['title']
         assert response.json()['description'] == fixture_menu[0]['description']
 
-    def test_read_submenu(self, client, fixture_submenu):
+        menu = db.query(Menu).filter(Menu.id == pytest.menu_id).first()
+        assert menu is not None
+        assert menu.title == fixture_menu[0]['title']
+        assert menu.description == fixture_menu[0]['description']
+
+    def test_read_submenu(self, client, fixture_submenu, db: Session):
         response = client.get(f'/api/v1/menus/{pytest.menu_id}/submenus/{pytest.submenu_id}')
         assert response.status_code == 200
         response_json = response.json()
         assert response_json['title'] == fixture_submenu[0]['title']
         assert response_json['description'] == fixture_submenu[0]['description']
 
+        submenu = db.query(Submenu).filter(Submenu.id == pytest.submenu_id).first()
+        assert submenu is not None
+        assert submenu.title == fixture_submenu[0]['title']
+        assert submenu.description == fixture_submenu[0]['description']
+
     def test_delete_submenu(self, client):
         response = client.delete(f'/api/v1/menus/{pytest.menu_id}/submenus/{pytest.submenu_id}')
         assert response.status_code == HTTPStatus.OK
 
-    def test_read_submenus(self, client):
+    def test_read_submenus(self, client, db: Session):
         response = client.get(f'/api/v1/menus/{pytest.menu_id}/submenus')
         assert response.status_code == 200
         assert response.json() == []
 
-    def test_read_dishes(self, client):
+        submenus = db.query(Submenu).filter(Submenu.menu_id == pytest.menu_id).all()
+        assert len(submenus) == 0
+
+    def test_read_dishes(self, client, db: Session):
         response = client.get(
-            f'/api/v1/menus/{pytest.menu_id}/submenus/{pytest.menu_id}/dishes'
+            f'/api/v1/menus/{pytest.menu_id}/submenus/{pytest.submenu_id}/dishes'
         )
         assert response.status_code == 200
         assert response.json() == []
 
-    def test_read_menu_two(self, client, fixture_menu):
+        dishes = db.query(Dishes).filter(Dishes.submenu_id == pytest.submenu_id).all()
+        assert len(dishes) == 0
+
+    def test_read_menu_two(self, client, fixture_menu, db: Session):
         response = client.get(f'/api/v1/menus/{pytest.menu_id}')
         print(response.json)
         assert response.json()['title'] == fixture_menu[0]['title']
         assert response.json()['description'] == fixture_menu[0]['description']
 
+        menu = db.query(Menu).filter(Menu.id == pytest.menu_id).first()
+        assert menu is not None
+        assert menu.title == fixture_menu[0]['title']
+        assert menu.description == fixture_menu[0]['description']
+
     def test_delete_menu(self, client):
         response = client.delete(f'/api/v1/menus/{pytest.menu_id}')
         assert response.status_code == HTTPStatus.OK
 
-    def test_read_menus(self, client):
+    def test_read_menus(self, client, db: Session):
         response = client.get('/api/v1/menus')
         assert response.status_code == 200
         assert response.json() == []
+
+        menus = db.query(Menu).all()
+        assert len(menus) == 0
