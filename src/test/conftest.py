@@ -51,31 +51,5 @@ def client(db) -> Generator:
         yield c
 
 
-@pytest.fixture(autouse=True)
-def fixture_menu():
-    menus = [
-        {'title': 'My menu', 'description': 'My description'},
-        {'title': 'Updated menu', 'description': 'Updated description'},
-    ]
-    return menus
-
-
-@pytest.fixture(autouse=True)
-def fixture_submenu():
-    submenus = [
-        {'title': 'My submenu', 'description': 'My description'},
-        {'title': 'Updated submenu', 'description': 'Updated description'},
-    ]
-    return submenus
-
-
-@pytest.fixture(autouse=True)
-def fixture_dish():
-    dishes = [
-        {'title': 'My dish', 'description': 'My description', 'price': '1111.01'},
-        {'title': 'My dish 2', 'description': 'My description 2', 'price': '1111.01'},
-        {'title': 'Updated dish','description': 'Updated description','price': '2222.01'},
-    ]
-    return dishes
 
 

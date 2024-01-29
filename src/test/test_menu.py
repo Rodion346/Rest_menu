@@ -3,6 +3,14 @@ from src.models import Menu
 from sqlalchemy.orm import Session
 import pytest
 
+@pytest.fixture(autouse=True)
+def fixture_menu():
+    menus = [
+        {'title': 'My menu', 'description': 'My description'},
+        {'title': 'Updated menu', 'description': 'Updated description'},
+    ]
+    return menus
+
 
 
 class TestMenu:

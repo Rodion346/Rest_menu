@@ -3,6 +3,22 @@ import pytest
 from sqlalchemy.orm import Session
 from src.models import Menu, Submenu
 
+@pytest.fixture(autouse=True)
+def fixture_menu():
+    menus = [
+        {'title': 'My menu', 'description': 'My description'},
+    ]
+    return menus
+
+@pytest.fixture(autouse=True)
+def fixture_submenu():
+    submenus = [
+        {'title': 'My submenu', 'description': 'My description'},
+        {'title': 'Updated submenu', 'description': 'Updated description'},
+    ]
+    return submenus
+
+
 class TestSubMenu:
     menu_id = None
     submenu_id = None
