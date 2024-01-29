@@ -40,10 +40,16 @@
 - Docker
 - Docker Compose
 
+## Для запуска Тестов
+
+1. Соберите docker-compose командой "docker-compose -f docker-compose-test.yml build"
+2. Запустите docker-compose командой "docker-compose -f docker-compose-test.yml up"
+
+В консоли покажутся результаты тестов чтобы выйти нажмите на 'Ctrl + C'
+
 ### Установка и запуск проекта
 
 1. Склонируйте репозиторий: https://github.com/Rodion346/Rest_menu/tree/master
-2. Соберите проект командой: docker-compose build
-3. Запустите проект командой: docker-compose up
-4. Все тесты проведутся автоматически, можете проверить выполнение тестов в логах.
-5. Перейдите по ссылке http://127.0.0.1:8000/docs
+2. Соберите docker-compose командой "docker-compose -f docker-compose.yml build"
+3. Запустите docker-compose командой "docker-compose -f docker-compose.yml up" добавите " -d " для скрытия логов
+4. Перейдите по ссылке http://127.0.0.1:8000/docs
