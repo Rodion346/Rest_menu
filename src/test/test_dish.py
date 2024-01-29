@@ -5,6 +5,31 @@ from sqlalchemy.orm import Session
 
 from src.models import Menu, Submenu, Dishes
 
+
+@pytest.fixture(autouse=True)
+def fixture_menu():
+    menus = [
+        {'title': 'My menu', 'description': 'My description'},
+    ]
+    return menus
+
+@pytest.fixture(autouse=True)
+def fixture_submenu():
+    submenus = [
+        {'title': 'My submenu', 'description': 'My description'},
+    ]
+    return submenus
+
+@pytest.fixture(autouse=True)
+def fixture_dish():
+    dishes = [
+        {'title': 'My dish', 'description': 'My description', 'price': '1111.01'},
+        {'title': 'Updated dish','description': 'Updated description','price': '2222.01'},
+    ]
+    return dishes
+
+
+
 class TestDish:
     menu_id = None
     submenu_id = None

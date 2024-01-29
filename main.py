@@ -5,6 +5,9 @@ from src.routes.dish_routers import router as dish_router
 
 app = FastAPI()
 
+@app.get("/health")
+def read_health():
+    return {"status": "ok"}
 
 app.include_router(menu_router)
 app.include_router(submenu_router)
