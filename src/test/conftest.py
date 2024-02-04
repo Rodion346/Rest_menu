@@ -2,7 +2,7 @@ from typing import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from src.database import metadata, get_db
+from src.db.database import metadata, get_db
 from src.config import DB_HOST_TEST, DB_PASS_TEST, DB_NAME_TEST, DB_PORT_TEST, DB_USER_TEST
 from main import app
 import pytest
