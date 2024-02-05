@@ -6,6 +6,7 @@ from src.models.models import Menu
 from src.repositories.menus import MenusRepository
 from src.repositories.submenus import SubmenusRepository
 from src.repositories.dishes import DishesRepository
+from src.test.conftest import reverse_operation
 
 
 @pytest.fixture(autouse=True)
@@ -24,7 +25,7 @@ class TestDishSubmenu:
     dish_id_two: str = None
 
     def test_create_menu(self, client, menu_data: dict) -> None:
-        response = client.post('/api/v1/menus', json=menu_data)
+        response = client.post(reverse_operation(client, "create_menu"), json=menu_data)
         assert response.status_code == HTTPStatus.CREATED
         self.__class__.menu_id = str(response.json()['id'])
 
@@ -35,7 +36,8 @@ class TestDishSubmenu:
 
     def test_create_submenu(self, client, submenu_data: dict) -> None:
         response = client.post(
-            f'/api/v1/menus/{self.__class__.menu_id}/submenus', json=submenu_data
+            reverse_operation(client, "create_submenu", menu_id=self.__class__.menu_id),
+            json=submenu_data
         )
         assert response.status_code == HTTPStatus.CREATED
         self.__class__.submenu_id = str(response.json()['id'])
@@ -47,7 +49,12 @@ class TestDishSubmenu:
 
     def test_create_dish_one(self, client, dish_data: list) -> None:
         response = client.post(
-            f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}/dishes',
+            reverse_operation(
+                client,
+                "create_dish",
+                menu_id=self.__class__.menu_id,
+                submenu_id=self.__class__.submenu_id
+            ),
             json=dish_data[0],
         )
         assert response.status_code == HTTPStatus.CREATED
@@ -61,7 +68,12 @@ class TestDishSubmenu:
 
     def test_create_dish_two(self, client, dish_data: list) -> None:
         response = client.post(
-            f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}/dishes',
+            reverse_operation(
+                client,
+                "create_dish",
+                menu_id=self.__class__.menu_id,
+                submenu_id=self.__class__.submenu_id
+            ),
             json=dish_data[1],
         )
         assert response.status_code == HTTPStatus.CREATED
@@ -74,7 +86,7 @@ class TestDishSubmenu:
         assert dish.price == Decimal(dish_data[1]['price'])
 
     def test_read_menu_one(self, client, menu_data: dict) -> None:
-        response = client.get(f'/api/v1/menus/{self.__class__.menu_id}')
+        response = client.get(reverse_operation(client, "read_menu", menu_id=self.__class__.menu_id))
         assert response.json()['title'] == menu_data['title']
         assert response.json()['description'] == menu_data['description']
 
@@ -84,7 +96,14 @@ class TestDishSubmenu:
         assert menu.description == menu_data['description']
 
     def test_read_submenu(self, client, submenu_data: dict) -> None:
-        response = client.get(f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}')
+        response = client.get(
+            reverse_operation(
+                client,
+                "read_submenu",
+                menu_id=self.__class__.menu_id,
+                submenu_id=self.__class__.submenu_id
+            )
+        )
         assert response.status_code == HTTPStatus.OK
         assert response.json()['title'] == submenu_data['title']
         assert response.json()['description'] == submenu_data['description']
@@ -95,14 +114,21 @@ class TestDishSubmenu:
         assert submenu.description == submenu_data['description']
 
     def test_delete_submenu(self, client) -> None:
-        response = client.delete(f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}')
+        response = client.delete(
+            reverse_operation(
+                client,
+                "delete_submenu",
+                menu_id=self.__class__.menu_id,
+                submenu_id=self.__class__.submenu_id
+            )
+        )
         assert response.status_code == HTTPStatus.OK
 
         submenu = SubmenusRepository().read(self.__class__.submenu_id)
         assert submenu is None
 
     def test_read_submenus(self, client) -> None:
-        response = client.get(f'/api/v1/menus/{self.__class__.menu_id}/submenus')
+        response = client.get(reverse_operation(client, "read_submenus", menu_id=self.__class__.menu_id))
         assert response.status_code == HTTPStatus.OK
         assert response.json() == []
 
@@ -111,17 +137,21 @@ class TestDishSubmenu:
 
     def test_read_dishes(self, client) -> None:
         response = client.get(
-            f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}/dishes'
+            reverse_operation(
+                client,
+                "read_dishes",
+                menu_id=self.__class__.menu_id,
+                submenu_id=self.__class__.submenu_id
+            )
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json() == []
 
         dishes = DishesRepository().read_all()
-
         assert dishes == []
 
     def test_read_menu_two(self, client, menu_data: dict) -> None:
-        response = client.get(f'/api/v1/menus/{self.__class__.menu_id}')
+        response = client.get(reverse_operation(client, "read_menu", menu_id=self.__class__.menu_id))
         assert response.json()['title'] == menu_data['title']
         assert response.json()['description'] == menu_data['description']
 
@@ -131,7 +161,7 @@ class TestDishSubmenu:
         assert menu.description == menu_data['description']
 
     def test_delete_menu(self, client) -> None:
-        response = client.delete(f'/api/v1/menus/{self.__class__.menu_id}')
+        response = client.delete(reverse_operation(client, "delete_menu", menu_id=self.__class__.menu_id))
         assert response.status_code == HTTPStatus.OK
 
         with get_db() as session:
@@ -139,7 +169,7 @@ class TestDishSubmenu:
             assert deleted_menu is None
 
     def test_read_menus(self, client) -> None:
-        response = client.get('/api/v1/menus')
+        response = client.get(reverse_operation(client, "read_menus"))
         assert response.status_code == HTTPStatus.OK
         assert response.json() == []
 
