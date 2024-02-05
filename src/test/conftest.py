@@ -13,12 +13,23 @@ from src.repositories.submenus import SubmenusRepository
 from src.schemas.dishes import DishIn
 from src.schemas.menus import MenuIn
 from src.schemas.submenus import SubmenuIn
+from starlette.routing import NoMatchFound
 
 # Конфигурация базы данных для тестов
 DATABASE_URL_TEST = f"postgresql+psycopg2://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"
 engine_test = create_engine(DATABASE_URL_TEST)
 metadata.bind = engine_test
 sessionmaker_test = sessionmaker(autocommit=False, autoflush=False, bind=engine_test)
+
+
+
+def reverse_operation(client: TestClient, operation_name: str, **path_params) -> str:
+    try:
+        path = client.app.url_path_for(operation_name, **path_params)
+        return client.base_url + path
+    except NoMatchFound:
+        raise NoMatchFound(f"Route for operation '{operation_name}' not found.")
+
 
 # Контекст для изменения зависимости get_db() в тестах
 @contextmanager
