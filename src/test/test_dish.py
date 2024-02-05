@@ -5,19 +5,19 @@ from src.repositories.dishes import DishesRepository
 
 
 @pytest.fixture
-def dish_data():
+def dish_data() -> dict:
     return {'title': 'My dish', 'description': 'My description', 'price': '1111.01'}
 
 
 class TestDish:
-    def test_read_dishes(self, client, create_submenu):
+    def test_read_dishes(self, client, create_submenu) -> None:
         response_read_dishes = client.get(
             f'/api/v1/menus/{create_submenu.menu_id}/submenus/{create_submenu.id}/dishes'
         )
         assert response_read_dishes.status_code == HTTPStatus.OK
         assert response_read_dishes.json() == []
 
-    def test_create_dish(self, client, create_submenu, dish_data):
+    def test_create_dish(self, client, create_submenu, dish_data: dict) -> None:
         response_create_dish = client.post(
             f'/api/v1/menus/{create_submenu.menu_id}/submenus/{create_submenu.id}/dishes', json=dish_data
         )
@@ -31,7 +31,7 @@ class TestDish:
         assert dish.description == dish_data['description']
         assert dish.price == Decimal(dish_data['price'])
 
-    def test_read_dish(self, client, create_dish):
+    def test_read_dish(self, client, create_dish: list) -> None:
         response_read = client.get(
             f'/api/v1/menus/{create_dish[0]}/submenus/{create_dish[1].submenu_id}/dishes/{create_dish[1].id}'
         )
@@ -46,7 +46,7 @@ class TestDish:
         assert dish.description == create_dish[1].description
         assert dish.price == Decimal(create_dish[1].price)
 
-    def test_update_dish(self, client, create_dish):
+    def test_update_dish(self, client, create_dish: list) -> None:
         updated_data = {'title': 'Updated dish', 'description': 'Updated description', 'price': '2222.01'}
         response_update_dish = client.patch(
             f'/api/v1/menus/{create_dish[0]}/submenus/{create_dish[1].submenu_id}/dishes/{create_dish[1].id}',
@@ -61,7 +61,7 @@ class TestDish:
         assert dish.description == updated_data['description']
         assert Decimal(dish.price) == Decimal(updated_data['price'])
 
-    def test_delete_dish(self, client, create_dish):
+    def test_delete_dish(self, client, create_dish: list) -> None:
         response_delete_dish = client.delete(
             f'/api/v1/menus/{create_dish[0]}/submenus/{create_dish[1].submenu_id}/dishes/{create_dish[1].id}',
         )

@@ -9,7 +9,7 @@ from src.repositories.dishes import DishesRepository
 
 
 @pytest.fixture(autouse=True)
-def dish_data():
+def dish_data() -> list:
     dishes = [
         {'title': 'My dish', 'description': 'My description', 'price': '1111.01'},
         {'title': 'My dish 2', 'description': 'My description 2', 'price': '1111.01'},
@@ -18,11 +18,12 @@ def dish_data():
 
 
 class TestDishSubmenu:
-    menu_id = None
-    submenu_id = None
-    dish_id = None
-    dish_id_two = None
-    def test_create_menu(self, client, menu_data):
+    menu_id: str = None
+    submenu_id: str = None
+    dish_id: str = None
+    dish_id_two: str = None
+
+    def test_create_menu(self, client, menu_data: dict) -> None:
         response = client.post('/api/v1/menus', json=menu_data)
         assert response.status_code == HTTPStatus.CREATED
         self.__class__.menu_id = str(response.json()['id'])
@@ -32,7 +33,7 @@ class TestDishSubmenu:
         assert menu.title == menu_data['title']
         assert menu.description == menu_data['description']
 
-    def test_create_submenu(self, client, submenu_data):
+    def test_create_submenu(self, client, submenu_data: dict) -> None:
         response = client.post(
             f'/api/v1/menus/{self.__class__.menu_id}/submenus', json=submenu_data
         )
@@ -44,7 +45,7 @@ class TestDishSubmenu:
         assert submenu.title == submenu_data['title']
         assert submenu.description == submenu_data['description']
 
-    def test_create_dish_one(self, client, dish_data):
+    def test_create_dish_one(self, client, dish_data: list) -> None:
         response = client.post(
             f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}/dishes',
             json=dish_data[0],
@@ -58,7 +59,7 @@ class TestDishSubmenu:
         assert dish.description == dish_data[0]['description']
         assert dish.price == Decimal(dish_data[0]['price'])
 
-    def test_create_dish_two(self, client, dish_data):
+    def test_create_dish_two(self, client, dish_data: list) -> None:
         response = client.post(
             f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}/dishes',
             json=dish_data[1],
@@ -72,7 +73,7 @@ class TestDishSubmenu:
         assert dish.description == dish_data[1]['description']
         assert dish.price == Decimal(dish_data[1]['price'])
 
-    def test_read_menu_one(self, client, menu_data):
+    def test_read_menu_one(self, client, menu_data: dict) -> None:
         response = client.get(f'/api/v1/menus/{self.__class__.menu_id}')
         assert response.json()['title'] == menu_data['title']
         assert response.json()['description'] == menu_data['description']
@@ -82,7 +83,7 @@ class TestDishSubmenu:
         assert menu.title == menu_data['title']
         assert menu.description == menu_data['description']
 
-    def test_read_submenu(self, client, submenu_data):
+    def test_read_submenu(self, client, submenu_data: dict) -> None:
         response = client.get(f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}')
         assert response.status_code == HTTPStatus.OK
         assert response.json()['title'] == submenu_data['title']
@@ -93,14 +94,14 @@ class TestDishSubmenu:
         assert submenu.title == submenu_data['title']
         assert submenu.description == submenu_data['description']
 
-    def test_delete_submenu(self, client):
+    def test_delete_submenu(self, client) -> None:
         response = client.delete(f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}')
         assert response.status_code == HTTPStatus.OK
 
         submenu = SubmenusRepository().read(self.__class__.submenu_id)
         assert submenu is None
 
-    def test_read_submenus(self, client):
+    def test_read_submenus(self, client) -> None:
         response = client.get(f'/api/v1/menus/{self.__class__.menu_id}/submenus')
         assert response.status_code == HTTPStatus.OK
         assert response.json() == []
@@ -108,7 +109,7 @@ class TestDishSubmenu:
         submenus = SubmenusRepository().read_all()
         assert submenus == []
 
-    def test_read_dishes(self, client):
+    def test_read_dishes(self, client) -> None:
         response = client.get(
             f'/api/v1/menus/{self.__class__.menu_id}/submenus/{self.__class__.submenu_id}/dishes'
         )
@@ -119,7 +120,7 @@ class TestDishSubmenu:
 
         assert dishes == []
 
-    def test_read_menu_two(self, client, menu_data):
+    def test_read_menu_two(self, client, menu_data: dict) -> None:
         response = client.get(f'/api/v1/menus/{self.__class__.menu_id}')
         assert response.json()['title'] == menu_data['title']
         assert response.json()['description'] == menu_data['description']
@@ -129,7 +130,7 @@ class TestDishSubmenu:
         assert menu.title == menu_data['title']
         assert menu.description == menu_data['description']
 
-    def test_delete_menu(self, client):
+    def test_delete_menu(self, client) -> None:
         response = client.delete(f'/api/v1/menus/{self.__class__.menu_id}')
         assert response.status_code == HTTPStatus.OK
 
@@ -137,7 +138,7 @@ class TestDishSubmenu:
             deleted_menu = session.query(Menu).filter(Menu.id == self.__class__.menu_id).first()
             assert deleted_menu is None
 
-    def test_read_menus(self, client):
+    def test_read_menus(self, client) -> None:
         response = client.get('/api/v1/menus')
         assert response.status_code == HTTPStatus.OK
         assert response.json() == []

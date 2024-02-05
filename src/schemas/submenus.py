@@ -2,7 +2,6 @@ from pydantic import BaseModel, UUID4
 from typing import Optional
 
 class SubmenuIn(BaseModel):
-    id: Optional[UUID4]
     title: str
     description: str
 
@@ -15,6 +14,7 @@ class SubmenuOut(BaseModel):
     title: str
     description: str
     menu_id: UUID4
+    submenus_count: Optional[int]
     dishes_count: Optional[int]
 
     class Config:
