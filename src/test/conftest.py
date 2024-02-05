@@ -1,5 +1,4 @@
 from typing import Generator
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from src.db.database import metadata, get_db
@@ -8,6 +7,12 @@ from main import app
 import pytest
 from fastapi.testclient import TestClient
 from contextlib import contextmanager
+from src.repositories.dishes import DishesRepository
+from src.repositories.menus import MenusRepository
+from src.repositories.submenus import SubmenusRepository
+from src.schemas.dishes import DishIn
+from src.schemas.menus import MenuIn
+from src.schemas.submenus import SubmenuIn
 
 DATABASE_URL_TEST = f"postgresql+psycopg2://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"
 
@@ -51,5 +56,55 @@ def client(db) -> Generator:
         yield c
 
 
+@pytest.fixture
+def create_menu(request, menu_data: dict):
+    menu_repo = MenusRepository()
+    menu = menu_repo.create(MenuIn(**menu_data))
+
+    def fin():
+        menu_repo.delete(menu.id)
+
+    request.addfinalizer(fin)
+    return menu
+
+@pytest.fixture
+def create_submenu(request, menu_data: dict, submenu_data: dict):
+    menu_repo = MenusRepository()
+    menu = menu_repo.create(MenuIn(**menu_data))
+    submenu_repo = SubmenusRepository()
+    submenu = submenu_repo.create(SubmenuIn(**submenu_data), menu.id)
+
+    def fin():
+        menu_repo.delete(menu.id)
+        submenu_repo.delete(submenu.id)
+
+    request.addfinalizer(fin)
+    return submenu
+
+@pytest.fixture
+def create_dish(request, menu_data: dict, submenu_data: dict, dish_data: dict):
+    menu_repo = MenusRepository()
+    menu = menu_repo.create(MenuIn(**menu_data))
+
+    submenu_repo = SubmenusRepository()
+    submenu = submenu_repo.create(SubmenuIn(**submenu_data), menu.id)
+
+    dish_repo = DishesRepository()
+    dish = dish_repo.create(DishIn(**dish_data), submenu.id)
+
+    def fin():
+        menu_repo.delete(menu.id)
+        submenu_repo.delete(submenu.id)
+        dish_repo.delete(dish.id)
+
+    request.addfinalizer(fin)
+    return [menu.id, dish]
+
+@pytest.fixture(autouse=True)
+def menu_data():
+    return {'title': 'My menu', 'description': 'My description'}
 
 
+@pytest.fixture(autouse=True)
+def submenu_data():
+    return {'title': 'My submenu', 'description': 'My description'}
