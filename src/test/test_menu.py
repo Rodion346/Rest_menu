@@ -1,88 +1,50 @@
-import pytest
 from http import HTTPStatus
-from src.models import Menu
-from sqlalchemy.orm import Session
+from src.repositories.menus import MenusRepository
+from src.db.database import get_db
+from src.models.models import Menu
 
-@pytest.fixture
-def menu_data():
-    return {'title': 'My menu', 'description': 'My description'}
 
 class TestMenu:
-    def test_read_menus(self, client, db: Session):
+    def test_read_menus(self, client):
         response = client.get('/api/v1/menus')
         assert response.status_code == HTTPStatus.OK
         assert response.json() == []
+        assert MenusRepository().read_all() == []
 
-        menus_in_db = db.query(Menu).all()
-        assert len(menus_in_db) == 0
-
-    def test_create_menu(self, client, db: Session, menu_data):
+    def test_create_menu(self, client, menu_data):
         response_create = client.post('/api/v1/menus', json=menu_data)
         assert response_create.status_code == HTTPStatus.CREATED
 
         menu_id = str(response_create.json()['id'])
-        menu = db.query(Menu).get(menu_id)
+        menu = MenusRepository().read(menu_id)
 
         assert menu is not None
         assert menu.title == menu_data['title']
         assert menu.description == menu_data['description']
 
-        db.delete(menu)
-        db.commit()
+        MenusRepository().delete(menu_id)
 
-        menu_after_delete = db.query(Menu).get(menu_id)
-        assert menu_after_delete is None
-
-    def test_read_menu(self, client, db: Session, menu_data):
-        menu = Menu(**menu_data)
-        db.add(menu)
-        db.commit()
-
-        response_read = client.get(f'/api/v1/menus/{menu.id}')
+    def test_read_menu(self, client, create_menu):
+        response_read = client.get(f'/api/v1/menus/{create_menu.id}')
         assert response_read.status_code == HTTPStatus.OK
-        assert response_read.json()['title'] == menu_data['title']
-        assert response_read.json()['description'] == menu_data['description']
+        assert response_read.json()['title'] == create_menu.title
+        assert response_read.json()['description'] == create_menu.description
 
-        menu = db.query(Menu).get(menu.id)
-        assert menu is not None
-        assert menu.title == menu_data['title']
-        assert menu.description == menu_data['description']
-
-        db.delete(menu)
-        db.commit()
-
-        menu_after_delete = db.query(Menu).get(menu.id)
-        assert menu_after_delete is None
-
-    def test_update_menu(self, client, db: Session, menu_data):
-        menu = Menu(**menu_data)
-        db.add(menu)
-        db.commit()
-
+    def test_update_menu(self, client, create_menu):
         updated_data = {'title': 'Updated menu', 'description': 'Updated description'}
-        response_update = client.patch(f'/api/v1/menus/{menu.id}', json=updated_data)
+        response_update = client.patch(f'/api/v1/menus/{create_menu.id}', json=updated_data)
         assert response_update.status_code == HTTPStatus.OK
-        assert response_update.json()['title'] == updated_data['title']
-        assert response_update.json()['description'] == updated_data['description']
 
-        menu = db.query(Menu).get(menu.id)
-        assert menu is not None
-        assert menu.title == updated_data['title']
-        assert menu.description == updated_data['description']
+        # Проверьте, что обновления на сервере происходят корректно
+        updated_menu = MenusRepository().read(create_menu.id)
+        assert updated_menu is not None
+        assert updated_menu.title == updated_data['title']
+        assert updated_menu.description == updated_data['description']
 
-        db.delete(menu)
-        db.commit()
-
-        menu_after_delete = db.query(Menu).get(menu.id)
-        assert menu_after_delete is None
-
-    def test_delete_menu(self, client, db: Session, menu_data):
-        menu = Menu(**menu_data)
-        db.add(menu)
-        db.commit()
-
-        response_delete = client.delete(f'/api/v1/menus/{menu.id}')
+    def test_delete_menu(self, client, create_menu):
+        response_delete = client.delete(f'/api/v1/menus/{create_menu.id}')
         assert response_delete.status_code == HTTPStatus.OK
 
-        menu = db.query(Menu).get(menu.id)
-        assert menu is None
+        with get_db() as session:
+            deleted_menu = session.query(Menu).filter(Menu.id == create_menu.id).first()
+            assert deleted_menu is None
