@@ -14,22 +14,22 @@ from src.schemas.dishes import DishIn
 from src.schemas.menus import MenuIn
 from src.schemas.submenus import SubmenuIn
 
+# Конфигурация базы данных для тестов
 DATABASE_URL_TEST = f"postgresql+psycopg2://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"
-
-
 engine_test = create_engine(DATABASE_URL_TEST)
 metadata.bind = engine_test
-
 sessionmaker_test = sessionmaker(autocommit=False, autoflush=False, bind=engine_test)
 
+# Контекст для изменения зависимости get_db() в тестах
 @contextmanager
-def override_get_db():
+def override_get_db() -> Generator:
     db = sessionmaker_test()
     try:
         yield db
     finally:
         db.close()
 
+# Фикстура для создания сессии базы данных в тестах
 @pytest.fixture(scope="session")
 def db() -> Generator:
     try:
@@ -38,51 +38,53 @@ def db() -> Generator:
     finally:
         db.close()
 
+# Фикстура для настройки базы данных перед запуском тестов
 @pytest.fixture(scope='session', autouse=True)
-def setup_db():
+def setup_db() -> None:
     with override_get_db() as db:
         assert db.bind.url.database == DB_NAME_TEST
         metadata.drop_all(engine_test)
         metadata.create_all(engine_test)
         db.commit()
 
-
-
+# Фикстура клиента для тестов
 @pytest.fixture(scope="module")
-def client(db) -> Generator:
+def client(db: sessionmaker) -> Generator:
     app.dependency_overrides[get_db] = lambda: db
     client = TestClient(app, backend_options={"use_uvloop": True})
     with client as c:
         yield c
 
-
+# Фикстура для создания меню
 @pytest.fixture
-def create_menu(request, menu_data: dict):
+def create_menu(request, menu_data: dict) -> MenuIn:
     menu_repo = MenusRepository()
     menu = menu_repo.create(MenuIn(**menu_data))
 
-    def fin():
+    def fin() -> None:
         menu_repo.delete(menu.id)
 
     request.addfinalizer(fin)
     return menu
 
+# Фикстура для создания подменю
 @pytest.fixture
-def create_submenu(request, menu_data: dict, submenu_data: dict):
+def create_submenu(request, menu_data: dict, submenu_data: dict) -> SubmenuIn:
     menu_repo = MenusRepository()
     menu = menu_repo.create(MenuIn(**menu_data))
     submenu_repo = SubmenusRepository()
     submenu = submenu_repo.create(SubmenuIn(**submenu_data), menu.id)
 
-    def fin():
+    def fin() -> None:
         menu_repo.delete(menu.id)
         submenu_repo.delete(submenu.id)
 
     request.addfinalizer(fin)
     return submenu
 
+# Фикстура для создания блюда
 @pytest.fixture
-def create_dish(request, menu_data: dict, submenu_data: dict, dish_data: dict):
+def create_dish(request, menu_data: dict, submenu_data: dict, dish_data: dict) -> list:
     menu_repo = MenusRepository()
     menu = menu_repo.create(MenuIn(**menu_data))
 
@@ -92,7 +94,7 @@ def create_dish(request, menu_data: dict, submenu_data: dict, dish_data: dict):
     dish_repo = DishesRepository()
     dish = dish_repo.create(DishIn(**dish_data), submenu.id)
 
-    def fin():
+    def fin() -> None:
         menu_repo.delete(menu.id)
         submenu_repo.delete(submenu.id)
         dish_repo.delete(dish.id)

@@ -9,12 +9,11 @@ metadata = MetaData()
 Base = declarative_base(metadata=metadata)
 engine = create_engine(DATABASE_URL)
 
-sessionmaker = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db() -> Session:
-    db = sessionmaker()
+    db = SessionLocal()
     try:
         return db
     finally:
         db.close()
-

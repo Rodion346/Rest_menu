@@ -3,14 +3,12 @@ from sqlalchemy import select, func, distinct
 from src.db.database import get_db
 from fastapi import HTTPException, status
 from src.models.models import Dishes, Submenu, Menu
-
-
-
+from src.schemas.menus import MenuIn
 
 class MenusRepository(SQLRepository):
     model = Menu
 
-    def read(self, id):
+    def read(self, id: str) -> Menu:
         with get_db() as session:
             query = session.query(self.model).filter(self.model.id == id).first()
             if not query:
@@ -36,10 +34,9 @@ class MenusRepository(SQLRepository):
                 query.dishes_count = d_count
             return query
 
-
-    def create(self, shemas):
+    def create(self, schemas: MenuIn) -> Menu:
         with get_db() as session:
-            db_data = self.model(**shemas.dict())
+            db_data = self.model(**schemas.dict())
             session.add(db_data)
             session.commit()
             session.refresh(db_data)
