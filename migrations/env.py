@@ -1,27 +1,25 @@
+import os
+import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
-
-
-import os, sys
+from src.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
+from src.models.models import Base
 
 sys.path.append(os.path.join(sys.path[0], 'src'))
 
-from src.config import DB_HOST, DB_PASS, DB_NAME, DB_PORT, DB_USER
-from src.models.models import Base
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("DB_HOST", DB_HOST)
-config.set_main_option("DB_PASS", DB_PASS)
-config.set_main_option("DB_NAME", DB_NAME)
-config.set_main_option("DB_PORT", DB_PORT)
-config.set_main_option("DB_USER", DB_USER)
+config.set_main_option('DB_HOST', DB_HOST)
+config.set_main_option('DB_PASS', DB_PASS)
+config.set_main_option('DB_NAME', DB_NAME)
+config.set_main_option('DB_PORT', DB_PORT)
+config.set_main_option('DB_USER', DB_USER)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -52,13 +50,13 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = config.get_main_option('sqlalchemy.url')
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         compare_type=True,
-        dialect_opts={"paramstyle": "named"},
+        dialect_opts={'paramstyle': 'named'},
     )
 
     with context.begin_transaction():
@@ -74,7 +72,7 @@ def run_migrations_online() -> None:
     """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+        prefix='sqlalchemy.',
         poolclass=pool.NullPool,
     )
 

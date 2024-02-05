@@ -1,20 +1,21 @@
-from src.utils.repository import SQLRepository
-from sqlalchemy import select, func, distinct
-from src.db.database import get_db
 from fastapi import HTTPException, status
-from src.models.models import Dishes, Submenu, Menu
+from sqlalchemy import distinct, func, select
+
+from src.db.database import get_db
+from src.models.models import Dishes, Menu, Submenu
 from src.schemas.menus import MenuIn
 
-class MenusRepository(SQLRepository):
-    model = Menu
 
-    def read(self, id: str) -> Menu:
+class MenusRepository():
+    model: type[Menu] = Menu
+
+    def read(self, id):
         with get_db() as session:
             query = session.query(self.model).filter(self.model.id == id).first()
             if not query:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail="menu not found",
+                    detail='menu not found',
                 )
             querys = (
                 select(
@@ -42,3 +43,27 @@ class MenusRepository(SQLRepository):
             session.refresh(db_data)
             return db_data
 
+    def read_all(self):
+        with get_db() as session:
+            query = session.query(self.model).all()
+            return query
+
+    def update(self, id, data):
+        with get_db() as session:
+            query = session.query(self.model).filter(self.model.id == id).first()
+            if query:
+                for key, value in data.items():
+                    setattr(query, key, value)
+                session.commit()
+                session.refresh(query)
+                return query
+            else:
+                return []
+
+    def delete(self, id):
+        with get_db() as session:
+            query = session.query(self.model).filter(self.model.id == id).first()
+            if query:
+                session.delete(query)
+                session.commit()
+                return {'message': 'Menu and associated submenus deleted'}

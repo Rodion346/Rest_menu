@@ -1,9 +1,8 @@
-from pydantic import BaseModel, UUID4
-from typing import Optional
+from pydantic import UUID4, BaseModel
 
 
 class MenuIn(BaseModel):
-    id: Optional[UUID4]
+    id: UUID4 | None
     title: str
     description: str
 
@@ -15,8 +14,8 @@ class MenuOut(BaseModel):
     id: UUID4
     title: str
     description: str
-    submenus_count: Optional[int]
-    dishes_count: Optional[int]
+    submenus_count: int | None
+    dishes_count: int | None
 
     class Config:
         orm_mode = True

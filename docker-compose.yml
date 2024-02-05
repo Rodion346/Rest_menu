@@ -27,4 +27,3 @@ services:
       - 5454
     env_file:
       - .env-docker
-
