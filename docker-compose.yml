@@ -27,3 +27,10 @@ services:
       - 5454
     env_file:
       - .env-docker
+
+  redis:
+    image: redis:7
+    container_name: redis_db
+    command: --port 6379
+    expose:
+      - 6379
