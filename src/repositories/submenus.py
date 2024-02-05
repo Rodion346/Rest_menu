@@ -1,12 +1,12 @@
-from src.utils.repository import SQLRepository
 from src.db.database import get_db
-from src.models.models import Dishes, Submenu, Menu
+from src.models.models import Dishes, Menu, Submenu
 from src.schemas.submenus import SubmenuIn
 
-class SubmenusRepository(SQLRepository):
-    model = Submenu
 
-    def read(self, id: str) -> Submenu:
+class SubmenuRepository():
+    model: type[Submenu] = Submenu
+
+    def read(self, id):
         with get_db() as session:
             query = session.query(self.model).filter(self.model.id == id).first()
             d_count = session.query(Dishes).join(self.model).filter(self.model.menu_id == Menu.id).count()
@@ -21,3 +21,28 @@ class SubmenusRepository(SQLRepository):
             session.commit()
             session.refresh(db_data)
             return db_data
+
+    def read_all(self):
+        with get_db() as session:
+            query = session.query(self.model).all()
+            return query
+
+    def update(self, id, data):
+        with get_db() as session:
+            query = session.query(self.model).filter(self.model.id == id).first()
+            if query:
+                for key, value in data.items():
+                    setattr(query, key, value)
+                session.commit()
+                session.refresh(query)
+                return query
+            else:
+                return []
+
+    def delete(self, id):
+        with get_db() as session:
+            query = session.query(self.model).filter(self.model.id == id).first()
+            if query:
+                session.delete(query)
+                session.commit()
+                return {'message': 'Menu and associated submenus deleted'}

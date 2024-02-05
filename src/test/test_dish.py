@@ -1,6 +1,8 @@
 from decimal import Decimal
 from http import HTTPStatus
+
 import pytest
+
 from src.repositories.dishes import DishesRepository
 from src.test.conftest import reverse_operation
 
@@ -13,14 +15,14 @@ def dish_data() -> dict:
 class TestDish:
     def test_read_dishes(self, client, create_submenu) -> None:
         response_read_dishes = client.get(
-            reverse_operation(client, "read_dishes", menu_id=create_submenu.menu_id, submenu_id=create_submenu.id)
+            reverse_operation(client, 'read_dishes', menu_id=create_submenu.menu_id, submenu_id=create_submenu.id)
         )
         assert response_read_dishes.status_code == HTTPStatus.OK
         assert response_read_dishes.json() == []
 
     def test_create_dish(self, client, create_submenu, dish_data: dict) -> None:
         response_create_dish = client.post(
-            reverse_operation(client, "create_dish", menu_id=create_submenu.menu_id, submenu_id=create_submenu.id), json=dish_data
+            reverse_operation(client, 'create_dish', menu_id=create_submenu.menu_id, submenu_id=create_submenu.id), json=dish_data
         )
         assert response_create_dish.status_code == HTTPStatus.CREATED
 
@@ -34,7 +36,8 @@ class TestDish:
 
     def test_read_dish(self, client, create_dish: list) -> None:
         response_read = client.get(
-            reverse_operation(client, "read_dish", menu_id=create_dish[0], submenu_id=create_dish[1].submenu_id, dish_id=create_dish[1].id)
+            reverse_operation(client, 'read_dish',
+                              menu_id=create_dish[0], submenu_id=create_dish[1].submenu_id, dish_id=create_dish[1].id)
         )
         assert response_read.status_code == HTTPStatus.OK
         assert response_read.json()['title'] == create_dish[1].title
@@ -50,7 +53,8 @@ class TestDish:
     def test_update_dish(self, client, create_dish: list) -> None:
         updated_data = {'title': 'Updated dish', 'description': 'Updated description', 'price': '2222.01'}
         response_update_dish = client.patch(
-            reverse_operation(client, "update_dish", menu_id=create_dish[0], submenu_id=create_dish[1].submenu_id, dish_id=create_dish[1].id),
+            reverse_operation(client, 'update_dish',
+                              menu_id=create_dish[0], submenu_id=create_dish[1].submenu_id, dish_id=create_dish[1].id),
             json=updated_data,
         )
         assert response_update_dish.status_code == HTTPStatus.OK
@@ -64,7 +68,8 @@ class TestDish:
 
     def test_delete_dish(self, client, create_dish: list) -> None:
         response_delete_dish = client.delete(
-            reverse_operation(client, "delete_dish", menu_id=create_dish[0], submenu_id=create_dish[1].submenu_id, dish_id=create_dish[1].id),
+            reverse_operation(client, 'delete_dish',
+                              menu_id=create_dish[0], submenu_id=create_dish[1].submenu_id, dish_id=create_dish[1].id),
         )
         assert response_delete_dish.status_code == HTTPStatus.OK
 

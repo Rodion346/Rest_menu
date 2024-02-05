@@ -1,8 +1,8 @@
-from pydantic import BaseModel, UUID4
-from typing import Optional
+from pydantic import UUID4, BaseModel
+
 
 class DishIn(BaseModel):
-    id: Optional[UUID4]
+    id: UUID4 | None
     title: str
     description: str
     price: str

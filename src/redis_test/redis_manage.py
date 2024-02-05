@@ -1,5 +1,6 @@
 import json
-import redis
+
+import redis  # type: ignore
 from fastapi.encoders import jsonable_encoder
 
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
