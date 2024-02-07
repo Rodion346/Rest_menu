@@ -7,13 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from main import app
-from src.config import (
-    DB_HOST_TEST,
-    DB_NAME_TEST,
-    DB_PASS_TEST,
-    DB_PORT_TEST,
-    DB_USER_TEST,
-)
+from src.config import DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER
 from src.db.database import get_db, metadata
 from src.redis.redis_manage import RedisTools
 from src.repositories.dishes import DishesRepository
@@ -23,7 +17,7 @@ from src.schemas.dishes import DishIn
 from src.schemas.menus import MenuIn
 from src.schemas.submenus import SubmenuIn
 
-DATABASE_URL_TEST: str = f"postgresql+psycopg2://{DB_USER_TEST}:{DB_PASS_TEST}@{DB_HOST_TEST}:{DB_PORT_TEST}/{DB_NAME_TEST}"  # noqa: E231
+DATABASE_URL_TEST: str = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"  # noqa: E231
 engine_test = create_engine(DATABASE_URL_TEST)
 metadata.bind = engine_test
 sessionmaker_test: sessionmaker = sessionmaker(autocommit=False, autoflush=False, bind=engine_test)
@@ -50,7 +44,7 @@ def db() -> Generator:
 @pytest.fixture(scope='session', autouse=True)
 def setup_db() -> None:
     with override_get_db() as db:
-        assert db.bind.url.database == DB_NAME_TEST
+        assert db.bind.url.database == DB_NAME
         metadata.drop_all(engine_test)
         metadata.create_all(engine_test)
         db.commit()
