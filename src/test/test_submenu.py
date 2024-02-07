@@ -5,13 +5,13 @@ from starlette.testclient import TestClient
 from src.models.models import Menu, Submenu
 from src.repositories.menus import MenusRepository
 from src.repositories.submenus import SubmenuRepository
-from src.test.conftest import reverse_operation
+from src.test.revers import reverse_operation
 
 
 class TestSubMenu:
 
     def test_create_menu(self, client: TestClient, menu_data: dict) -> None:
-        response_create_menu = client.post(reverse_operation(client, 'create_menu'), json=menu_data)
+        response_create_menu = client.post(reverse_operation('create_menu'), json=menu_data)
         assert response_create_menu.status_code == HTTPStatus.CREATED
 
         menu_id = str(response_create_menu.json()['id'])
@@ -24,13 +24,13 @@ class TestSubMenu:
         MenusRepository().delete(menu.id)
 
     def test_read_submenus(self, client: TestClient, create_menu: Menu) -> None:
-        response_read_submenus = client.get(reverse_operation(client, 'read_submenus', menu_id=create_menu.id))
+        response_read_submenus = client.get(reverse_operation('read_submenus', menu_id=create_menu.id))
         assert response_read_submenus.status_code == HTTPStatus.OK
         assert response_read_submenus.json() == []
 
     def test_create_submenu(self, client: TestClient, submenu_data: dict, create_menu: Menu) -> None:
         response_create_submenu = client.post(
-            reverse_operation(client, 'create_submenu', menu_id=create_menu.id), json=submenu_data
+            reverse_operation('create_submenu', menu_id=create_menu.id), json=submenu_data
         )
         assert response_create_submenu.status_code == HTTPStatus.CREATED
 
@@ -42,9 +42,9 @@ class TestSubMenu:
         assert submenu.description == submenu_data['description']
 
     def test_update_submenu(self, client: TestClient, create_submenu: Submenu) -> None:
-        updated_data = {'title': 'Updated submenu', 'description': 'Updated description'}
+        updated_data: dict = {'title': 'Updated submenu', 'description': 'Updated description'}
         response_update_submenu = client.patch(
-            reverse_operation(client, 'update_submenu', menu_id=create_submenu.menu_id, submenu_id=create_submenu.id), json=updated_data
+            reverse_operation('update_submenu', menu_id=create_submenu.menu_id, submenu_id=create_submenu.id), json=updated_data
         )
         assert response_update_submenu.status_code == HTTPStatus.OK
 
@@ -55,7 +55,7 @@ class TestSubMenu:
 
     def test_delete_submenu(self, client: TestClient, create_submenu: Submenu) -> None:
         response_delete_submenu = client.delete(
-            reverse_operation(client, 'delete_submenu', menu_id=create_submenu.menu_id, submenu_id=create_submenu.id)
+            reverse_operation('delete_submenu', menu_id=create_submenu.menu_id, submenu_id=create_submenu.id)
         )
         assert response_delete_submenu.status_code == HTTPStatus.OK
 

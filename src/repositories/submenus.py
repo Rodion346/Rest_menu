@@ -3,33 +3,33 @@ from src.models.models import Dishes, Menu, Submenu
 from src.schemas.submenus import SubmenuIn
 
 
-class SubmenuRepository():
+class SubmenuRepository:
     model: type[Submenu] = Submenu
 
-    def read(self, id):
+    def read(self, id: str) -> Submenu | None:
         with get_db() as session:
-            query = session.query(self.model).filter(self.model.id == id).first()
-            d_count = session.query(Dishes).join(self.model).filter(self.model.menu_id == Menu.id).count()
-            if d_count:
+            query: Submenu | None = session.query(self.model).filter(self.model.id == id).first()
+            if query:
+                d_count: int = session.query(Dishes).join(self.model).filter(self.model.menu_id == Menu.id).count()
                 query.dishes_count = d_count
             return query
 
     def create(self, schemas: SubmenuIn, menu_id: str) -> Submenu:
         with get_db() as session:
-            db_data = self.model(**schemas.dict(), menu_id=menu_id)
+            db_data: Submenu = self.model(**schemas.dict(), menu_id=menu_id)
             session.add(db_data)
             session.commit()
             session.refresh(db_data)
             return db_data
 
-    def read_all(self):
+    def read_all(self) -> list[Submenu]:
         with get_db() as session:
-            query = session.query(self.model).all()
+            query: list[Submenu] = session.query(self.model).all()
             return query
 
-    def update(self, id, data):
+    def update(self, id: str, data: dict[str, str]) -> Submenu | dict[str, str]:
         with get_db() as session:
-            query = session.query(self.model).filter(self.model.id == id).first()
+            query: Submenu | None = session.query(self.model).filter(self.model.id == id).first()
             if query:
                 for key, value in data.items():
                     setattr(query, key, value)
@@ -37,12 +37,14 @@ class SubmenuRepository():
                 session.refresh(query)
                 return query
             else:
-                return []
+                return {}
 
-    def delete(self, id):
+    def delete(self, id: str) -> dict[str, str]:
         with get_db() as session:
-            query = session.query(self.model).filter(self.model.id == id).first()
+            query: Submenu | None = session.query(self.model).filter(self.model.id == id).first()
             if query:
                 session.delete(query)
                 session.commit()
                 return {'message': 'Menu and associated submenus deleted'}
+            else:
+                return {'message': f'No submenu found with id {id}'}

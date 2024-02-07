@@ -2,13 +2,12 @@ from pydantic import UUID4, BaseModel
 
 
 class DishIn(BaseModel):
-    id: UUID4 | None
     title: str
     description: str
     price: str
 
     class Config:
-        orm_mode = True
+        orm_mode: bool = True
 
 
 class DishOut(BaseModel):
@@ -19,4 +18,4 @@ class DishOut(BaseModel):
     submenu_id: UUID4
 
     class Config:
-        orm_mode = True
+        orm_mode: bool = True

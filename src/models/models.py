@@ -35,4 +35,4 @@ class Dishes(Base):
     description = Column(String(125))
     submenu_id = Column(UUID(as_uuid=True), ForeignKey('submenus.id'))
 
-    submenu = relationship('Submenu', back_populates='dishes', cascade='all, delete-orphan', single_parent=True)
+    submenu = relationship('Submenu', back_populates='dishes', single_parent=True)
