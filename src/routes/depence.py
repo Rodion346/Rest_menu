@@ -1,4 +1,4 @@
-from src.redis_test.redis_manage import RedisTools
+from src.redis.redis_manage import RedisTools
 from src.repositories.dishes import DishesRepository
 from src.repositories.menus import MenusRepository
 from src.repositories.submenus import SubmenuRepository

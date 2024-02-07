@@ -6,12 +6,12 @@ from src.models.models import Dishes, Menu, Submenu
 from src.schemas.menus import MenuIn
 
 
-class MenusRepository():
+class MenusRepository:
     model: type[Menu] = Menu
 
-    def read(self, id):
+    def read(self, id: str) -> Menu | None:
         with get_db() as session:
-            query = session.query(self.model).filter(self.model.id == id).first()
+            query: Menu | None = session.query(self.model).filter(self.model.id == id).first()
             if not query:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
@@ -37,20 +37,20 @@ class MenusRepository():
 
     def create(self, schemas: MenuIn) -> Menu:
         with get_db() as session:
-            db_data = self.model(**schemas.dict())
+            db_data: Menu = self.model(**schemas.dict())
             session.add(db_data)
             session.commit()
             session.refresh(db_data)
             return db_data
 
-    def read_all(self):
+    def read_all(self) -> list[Menu]:
         with get_db() as session:
-            query = session.query(self.model).all()
+            query: list[Menu] = session.query(self.model).all()
             return query
 
-    def update(self, id, data):
+    def update(self, id: str, data: dict[str, str]) -> Menu | dict[str, str]:
         with get_db() as session:
-            query = session.query(self.model).filter(self.model.id == id).first()
+            query: Menu | None = session.query(self.model).filter(self.model.id == id).first()
             if query:
                 for key, value in data.items():
                     setattr(query, key, value)
@@ -58,12 +58,14 @@ class MenusRepository():
                 session.refresh(query)
                 return query
             else:
-                return []
+                return {}
 
-    def delete(self, id):
+    def delete(self, id: str) -> dict[str, str]:
         with get_db() as session:
-            query = session.query(self.model).filter(self.model.id == id).first()
+            query: Menu | None = session.query(self.model).filter(self.model.id == id).first()
             if query:
                 session.delete(query)
                 session.commit()
                 return {'message': 'Menu and associated submenus deleted'}
+            else:
+                return {'message': f'No submenu found with id {id}'}

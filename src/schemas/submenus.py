@@ -6,7 +6,7 @@ class SubmenuIn(BaseModel):
     description: str
 
     class Config:
-        orm_mode = True
+        orm_mode: bool = True
 
 
 class SubmenuOut(BaseModel):
@@ -14,8 +14,7 @@ class SubmenuOut(BaseModel):
     title: str
     description: str
     menu_id: UUID4
-    submenus_count: int | None
-    dishes_count: int | None
+    dishes_count: int | None = None
 
     class Config:
-        orm_mode = True
+        orm_mode: bool = True
