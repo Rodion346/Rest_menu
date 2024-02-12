@@ -34,3 +34,36 @@ services:
     command: --port 6379
     expose:
       - 6379
+
+  celery-beat:
+    container_name: cel_b
+    build:
+      context: .
+    env_file:
+      - .env-docker
+    depends_on:
+      - rabbitmq
+      - db
+      - api
+      - redis
+    command: [ "celery", "-A", "celer:celery_app", "beat", "--loglevel=info" ]
+
+  celery_worker:
+    container_name: cel
+    build:
+      context: .
+    env_file:
+      - .env-docker
+    depends_on:
+      - rabbitmq
+      - db
+      - api
+      - redis
+    command: [ "celery", "-A", "celer:celery_app", "worker", "--loglevel=info", "--concurrency", "1", "-P", "solo" ]
+
+  rabbitmq:
+    container_name: rabbit
+    image: "rabbitmq:management"
+    env_file:
+      - .env-docker
+    hostname: 'rabbitmq'
