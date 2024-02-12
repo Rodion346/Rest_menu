@@ -34,7 +34,7 @@
 ### Реализовать вывод количества подменю и блюд для Меню через один (сложный) ORM запрос.
 путь к нему src/repositories/menus.py/ строка 14:35
 ### Аналог Django reverse().
-путь к нему src/test/conftest.py/ строки 32:37
+путь к нему src/test/revers.py/
 
 ### Реализовать тестовый сценарий «Проверка кол-ва блюд и подменю в меню» из Postman с помощью pytest
 путь к нему src/test/test_dish_submenu_check.py
