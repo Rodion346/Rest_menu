@@ -61,41 +61,6 @@ class RedisTools:
             filtered_lists = [ent for ent in lists if ent.get('id') != ids]
             await self.redis_client.set(key, json.dumps(filtered_lists))
 
-    """async def add_lists(self, key: str, data: dict) -> None:
-        lists: bytes | None = await self.redis_client.get(key)
-        if lists is not None:
-            ent: list[dict] = json.loads(lists.decode('utf-8'))
-        else:
-            ent = []
-        ent.append(data)
-        await self.redis_client.set(key, json.dumps(jsonable_encoder(ent)))"""
-
-    """async def add_count(self, key: str, id: Any, sub_id: Any | None = None) -> None:
-        if key == 's':
-            ent_s: bytes | None = await redis_client.get(str(id))
-            if ent_s is not None:
-                lists = json.loads(ent_s)
-                lists['submenus_count'] = len(json.loads(await self.redis_client.get('all_submenus')))
-                await self.redis_client.set(id, json.dumps(lists))
-        if key == 'd':
-            ent_d: bytes | None = await redis_client.get(str(id))
-            ent_sub: bytes | None = await redis_client.get(str(sub_id))
-            if ent_d is None or ent_d == []:
-                pass
-            else:
-                if ent_sub is None or ent_sub == []:
-                    lists_d = json.loads(ent_d)
-                    lists_d['submenus_count'] = 0
-                    lists_d['dishes_count'] = 0
-                    await self.redis_client.set(id, json.dumps(lists_d))
-                else:
-                    lists_d = json.loads(ent_d)
-                    lists_s = json.loads(ent_sub)
-                    lists_d['dishes_count'] = len(json.loads(await self.redis_client.get('all_dishes')))
-                    lists_s['dishes_count'] = len(json.loads(await self.redis_client.get('all_dishes')))
-                    await self.redis_client.set(sub_id, json.dumps(lists_s))
-                    await self.redis_client.set(id, json.dumps(lists_d))"""
-
     async def count(self, id_ent) -> None:
         ent_d: bytes | None = await self.redis_client.get(str(id_ent))
         if ent_d is not None:

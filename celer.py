@@ -167,9 +167,6 @@ async def main_async():
     save_global_data(to_save)
 
 
-# a = asyncio.run(read_excel_to_data())
-# print(a)
-
 @celery_app.task
 def main():
     result = loop.run_until_complete(main_async())
